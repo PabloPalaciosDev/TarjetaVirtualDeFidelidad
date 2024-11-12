@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaDeFidelidad.DbContext;
 using SistemaDeFidelidad.Controllers;
+using SistemaDeFidelidad.Interfaces;
+using SistemaDeFidelidad.Models;
+using SistemaDeFidelidad.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +21,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAuthorization();
 
 //inyección de dependencias
-builder.Services.AddScoped<ClienteParticipantesController>();
+//builder.Services.AddScoped<ClienteParticipantesController>();
+builder.Services.AddScoped<ServiceClienteParticipante>();
+builder.Services.AddScoped<IRepository<ClienteParticipante>, Repository<ClienteParticipante>>();
 
 //swagger
 

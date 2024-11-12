@@ -1,84 +1,112 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SistemaDeFidelidad.DbContext;
-using SistemaDeFidelidad.Models;
-using SistemaDeFidelidad.Models.DTOs;
-using Asp.Versioning;
-
-namespace SistemaDeFidelidad.Controllers
+﻿namespace SistemaDeFidelidad.Controllers
 {
+    using Asp.Versioning;
+    using Microsoft.AspNetCore.Mvc;
+    using SistemaDeFidelidad.Models;
+    using SistemaDeFidelidad.Models.DTOs;
+    using SistemaDeFidelidad.Repository;
+
+    /// <summary>
+    /// Defines the <see cref="ClienteParticipantesController" />
+    /// </summary>
     [ApiVersion("1.0")]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ClienteParticipantesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        /// <summary>
+        /// Defines the _serviceClienteParticipante
+        /// </summary>
+        private readonly ServiceClienteParticipante _serviceClienteParticipante;
 
-        public ClienteParticipantesController(ApplicationDbContext context)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClienteParticipantesController"/> class.
+        /// </summary>
+        /// <param name="serviceClienteParticipante">The serviceClienteParticipante<see cref="ServiceClienteParticipante"/></param>
+        public ClienteParticipantesController(ServiceClienteParticipante serviceClienteParticipante)
         {
-            _context = context;
+            _serviceClienteParticipante = serviceClienteParticipante;
         }
 
         // GET: ClienteParticipantes
+
+        /// <summary>
+        /// The GetAll
+        /// </summary>
+        /// <returns>The <see cref="Task{IActionResult}"/></returns>
         [HttpGet("GetAll")]
-        public async Task<IActionResult> Index()
-        {
-            return Ok(await _context.ClientesParticipantes.ToListAsync());
-        }
-
-        // GET: ClienteParticipantes/Details/5
-        [HttpGet("GetByGuid")]
-        public async Task<IActionResult> Details(Guid? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var clienteParticipante = await _context.ClientesParticipantes
-                .FirstOrDefaultAsync(m => m.IdCliente == id);
-            if (clienteParticipante == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(clienteParticipante);
-        }
-
-        // POST: ClienteParticipantes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost("Create")]
-        public async Task<IActionResult> Create([FromBody]DTOClienteParticipante clienteParticipante)
+        public async Task<IActionResult> GetAll()
         {
             try
             {
-                if (ModelState.IsValid)
-                {
-                    // Verificar si ya existe un cliente con la misma cédula
-                    if (_context.ClientesParticipantes.Any(c => c.CedulaCliente == clienteParticipante.CedulaCliente))
-                    {
-                        ModelState.AddModelError("CedulaCliente", "Ya existe un cliente con esta cédula.");
-                        return Ok("Clienta ya registrado");
-                    }
+                var clientesParticipantes = await _serviceClienteParticipante.GetAllAsync();
+                return Ok(clientesParticipantes);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-                    var clienteNuevo = new ClienteParticipante
-                    {
-                        IdCliente = Guid.NewGuid(),
-                        CedulaCliente = clienteParticipante.CedulaCliente,
-                        NombreCliente = clienteParticipante.NombreCliente,
-                        ApellidoCliente = clienteParticipante.ApellidoCliente,
-                        EmailCliente = clienteParticipante.EmailCliente,
-                        TelefonoCliente = clienteParticipante.TelefonoCliente
-                    };
-                    _context.ClientesParticipantes.Add(clienteNuevo);
-                    await _context.SaveChangesAsync();
+        // GET: ClienteParticipantes/Details/5
+
+        /// <summary>
+        /// The GetByGuid
+        /// </summary>
+        /// <param name="id">The id<see cref="Guid?"/></param>
+        /// <returns>The <see cref="Task{IActionResult}"/></returns>
+        [HttpGet("GetByGuid")]
+        public async Task<IActionResult> GetByGuid(Guid? id)
+        {
+            try
+            {
+                //no encontrado
+                if (id == null)
+                {
+                    return NotFound();
+                }
+
+                var clienteParticipante = await _serviceClienteParticipante.GetByGuidAsync(id);
+                if (clienteParticipante == null)
+                {
+                    return NotFound();
                 }
                 return Ok(clienteParticipante);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                return BadRequest(ex.Message);
+            }
+        }
+
+        // POST: ClienteParticipantes/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
+        /// <summary>
+        /// The Create
+        /// </summary>
+        /// <param name="clienteParticipante">The clienteParticipante<see cref="DTOClienteParticipante"/></param>
+        /// <returns>The <see cref="Task{IActionResult}"/></returns>
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromBody] DTOClienteParticipante clienteParticipante)
+        {
+            try
+            {
+                var clienteParticipanteEntity = new ClienteParticipante
+                {
+                    CedulaCliente = clienteParticipante.CedulaCliente,
+                    NombreCliente = clienteParticipante.NombreCliente,
+                    ApellidoCliente = clienteParticipante.ApellidoCliente,
+                    EmailCliente = clienteParticipante.EmailCliente,
+                    TelefonoCliente = clienteParticipante.TelefonoCliente
+                };
+
+                await _serviceClienteParticipante.AddAsync(clienteParticipanteEntity);
+                return Ok(clienteParticipanteEntity);
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(ex.Message);
             }
         }
@@ -86,29 +114,43 @@ namespace SistemaDeFidelidad.Controllers
         // POST: ClienteParticipantes/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
+        /// <summary>
+        /// The Edit
+        /// </summary>
+        /// <param name="id">The id<see cref="Guid"/></param>
+        /// <param name="clienteParticipante">The clienteParticipante<see cref="DTOClienteParticipante"/></param>
+        /// <returns>The <see cref="Task{IActionResult}"/></returns>
         [HttpPost("Update")]
-        public async Task<IActionResult> Edit(Guid id,[FromBody] DTOClienteParticipante clienteParticipante)
+        public async Task<IActionResult> Edit(Guid id, [FromBody] DTOClienteParticipante clienteParticipante)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var clienteParticipanteFound = await _context.ClientesParticipantes.FindAsync(id);
+                    var clienteParticipanteFound = await _serviceClienteParticipante.GetByGuidAsync(id);
 
                     if (clienteParticipanteFound == null)
                     {
                         return NotFound();
                     }
 
-                    clienteParticipanteFound.CedulaCliente = clienteParticipante.CedulaCliente;
-                    clienteParticipanteFound.NombreCliente = clienteParticipante.NombreCliente;
-                    clienteParticipanteFound.ApellidoCliente = clienteParticipante.ApellidoCliente;
-                    clienteParticipanteFound.EmailCliente = clienteParticipante.EmailCliente;
-                    clienteParticipanteFound.TelefonoCliente = clienteParticipante.TelefonoCliente;
-                    clienteParticipanteFound.IdCliente = id;
+                    clienteParticipanteFound.Data!.CedulaCliente = clienteParticipante.CedulaCliente;
+                    clienteParticipanteFound.Data.NombreCliente = clienteParticipante.NombreCliente;
+                    clienteParticipanteFound.Data.ApellidoCliente = clienteParticipante.ApellidoCliente;
+                    clienteParticipanteFound.Data.EmailCliente = clienteParticipante.EmailCliente;
+                    clienteParticipanteFound.Data.TelefonoCliente = clienteParticipante.TelefonoCliente;
+                    clienteParticipanteFound.Data.IdCliente = id;
 
-                    _context.ClientesParticipantes.Update(clienteParticipanteFound);
-                    await _context.SaveChangesAsync();
+                   var resultado =  await _serviceClienteParticipante.UpdateAsync(clienteParticipanteFound.Data);
+
+                    if (resultado.Success)
+                    {
+                        return Ok(clienteParticipanteFound.Data);
+                    }else
+                    {
+                        return BadRequest(resultado.Message);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -118,18 +160,30 @@ namespace SistemaDeFidelidad.Controllers
             }
             return Ok(clienteParticipante);
         }
+
+        /// <summary>
+        /// The Delete
+        /// </summary>
+        /// <param name="id">The id<see cref="Guid"/></param>
+        /// <returns>The <see cref="Task{IActionResult}"/></returns>
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var clienteParticipante = await _context.ClientesParticipantes.FindAsync(id);
-            if (clienteParticipante != null)
+            try
             {
-                _context.ClientesParticipantes.Remove(clienteParticipante);
-            }
+                var clienteParticipante = await _serviceClienteParticipante.GetByGuidAsync(id);
+                if (clienteParticipante == null)
+                {
+                    return NotFound();
+                }
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                var result = await _serviceClienteParticipante.DeleteByGuidAsync(clienteParticipante.Data!.IdCliente);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
-
