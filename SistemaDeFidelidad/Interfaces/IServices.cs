@@ -5,7 +5,7 @@
         Task<ServiceResult> AddAsync(T entity);
         Task<ServiceResult> UpdateAsync(T entity);
         Task<ServiceResult> DeleteByGuidAsync(Guid? id);
-        Task<ServiceResult<T>> GetByIdAsync(string? id);
+        Task<ServiceResult<T>> GetByIdAsync(int? id);
         Task<ServiceResult<T>> GetByGuidAsync(Guid? id);
         Task<ServiceResult<IEnumerable<T>>> GetAllAsync();
     }

@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SistemaDeFidelidad.DbContext;
-using SistemaDeFidelidad.Controllers;
 using SistemaDeFidelidad.Interfaces;
 using SistemaDeFidelidad.Models;
 using SistemaDeFidelidad.Repository;
+using SistemaDeFidelidad.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +23,9 @@ builder.Services.AddAuthorization();
 //inyección de dependencias
 //builder.Services.AddScoped<ClienteParticipantesController>();
 builder.Services.AddScoped<ServiceClienteParticipante>();
+builder.Services.AddScoped<ServiceTarjetaFidelidad>();
 builder.Services.AddScoped<IRepository<ClienteParticipante>, Repository<ClienteParticipante>>();
+builder.Services.AddScoped<IRepository<TarjetaFidelidad>, Repository<TarjetaFidelidad>>();
 
 //swagger
 

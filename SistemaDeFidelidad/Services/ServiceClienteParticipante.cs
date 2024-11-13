@@ -4,10 +4,12 @@ using SistemaDeFidelidad.Models;
 public class ServiceClienteParticipante : IServices<ClienteParticipante>
 {
     private readonly IRepository<ClienteParticipante> _repository;
+    private readonly IRepository<TarjetaFidelidad> _repositoryTarjetaFidelidad;
 
-    public ServiceClienteParticipante(IRepository<ClienteParticipante> repository)
+    public ServiceClienteParticipante(IRepository<ClienteParticipante> repository, IRepository<TarjetaFidelidad> repositoryTarjetaFidelidad)
     {
         _repository = repository;
+        _repositoryTarjetaFidelidad = repositoryTarjetaFidelidad;
     }
 
     public async Task<ServiceResult> AddAsync(ClienteParticipante entity)
@@ -24,6 +26,27 @@ public class ServiceClienteParticipante : IServices<ClienteParticipante>
             await _repository.AddAsync(entity);
             await _repository.SaveAsync();
 
+
+            //Obtener cliente creado
+            var cliente = await _repository.GetByAnyAsync(c => c.CedulaCliente == entity.CedulaCliente);
+
+            if (cliente == null) {
+                return ServiceResult.FailureResult("Error al crear cliente");
+            }
+
+            //Crear tarjeta de fidelidad
+            var tarjetaFidelidad = new TarjetaFidelidad
+            {
+                IdTarjeta = Guid.NewGuid(),
+                IdCliente = cliente.IdCliente,
+                Puntos = 0,
+                Activa = true
+            };
+
+            await _repositoryTarjetaFidelidad.AddAsync(tarjetaFidelidad);
+            await _repositoryTarjetaFidelidad.SaveAsync();
+
+
             return ServiceResult.SuccessResult("Cliente creado con éxito");
         }
         catch (Exception ex)
@@ -36,7 +59,7 @@ public class ServiceClienteParticipante : IServices<ClienteParticipante>
     {
         try
         {
-            var cliente = await _repository.GetByGuidAsync(id);
+            var cliente = await _repository.GetByGuidAsync(id, "IdCliente", c => c.Tarjetas, c => c.Descuentos);
             if (cliente == null)
             {
                 return ServiceResult.FailureResult("Cliente no encontrado");
@@ -53,57 +76,11 @@ public class ServiceClienteParticipante : IServices<ClienteParticipante>
         }
     }
 
-    public async Task<ServiceResult<IEnumerable<ClienteParticipante>>> GetAllAsync()
-    {
-        try
-        {
-            var clientes = await _repository.GetAllAsync();
-            return ServiceResult<IEnumerable<ClienteParticipante>>.SuccessResult(clientes);
-        }
-        catch (Exception ex)
-        {
-            return ServiceResult<IEnumerable<ClienteParticipante>>.FailureResult(ex.Message);
-        }
-    }
-
-    public async Task<ServiceResult<ClienteParticipante>> GetByIdAsync(string? id)
-    {
-        if (id == null)
-        {
-            return ServiceResult<ClienteParticipante>.FailureResult("Id no puede ser nulo");
-        }
-
-        var cliente = await _repository.GetByIdAsync(id);
-        if (cliente == null)
-        {
-            return ServiceResult<ClienteParticipante>.FailureResult("Cliente no encontrado");
-        }
-
-        return ServiceResult<ClienteParticipante>.SuccessResult(cliente);
-    }
-
-    public async Task<ServiceResult<ClienteParticipante>> GetByGuidAsync(Guid? id)
-    {
-        if (id == null)
-        {
-            return ServiceResult<ClienteParticipante>.FailureResult("Id no puede ser nulo");
-        }
-
-        var cliente = await _repository.GetByGuidAsync(id);
-        if (cliente == null)
-        {
-            return ServiceResult<ClienteParticipante>.FailureResult("Cliente no encontrado");
-        }
-
-        return ServiceResult<ClienteParticipante>.SuccessResult(cliente);
-    }
-
-
     public async Task<ServiceResult> UpdateAsync(ClienteParticipante entity)
     {
         try
         {
-            var cliente = await _repository.GetByIdAsync(entity.IdCliente.ToString());
+            var cliente = await _repository.GetByGuidAsync(entity.IdCliente, "IdCliente", c => c.Tarjetas, c => c.Descuentos);
             if (cliente == null)
             {
                 return ServiceResult.FailureResult("Cliente no encontrado");
@@ -119,4 +96,53 @@ public class ServiceClienteParticipante : IServices<ClienteParticipante>
             return ServiceResult.FailureResult(ex.Message);
         }
     }
+
+    #region Gets personalizados
+    public async Task<ServiceResult<IEnumerable<ClienteParticipante>>> GetAllAsync()
+    {
+        try
+        {
+            //Obtener tarjetas y descuentos registrados del cliente
+            var clientes = await _repository.GetAllWithIncludesAsync(c => c.Tarjetas, c => c.Descuentos);
+            return ServiceResult<IEnumerable<ClienteParticipante>>.SuccessResult(clientes);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<IEnumerable<ClienteParticipante>>.FailureResult(ex.Message);
+        }
+    }
+
+    public async Task<ServiceResult<ClienteParticipante>> GetByIdAsync(int? id)
+    {
+        if (id == null)
+        {
+            return ServiceResult<ClienteParticipante>.FailureResult("Id no puede ser nulo");
+        }
+
+        var cliente = await _repository.GetByIdAsync(id, c => c.Tarjetas, c => c.Descuentos);
+        if (cliente == null)
+        {
+            return ServiceResult<ClienteParticipante>.FailureResult("Cliente no encontrado");
+        }
+
+        return ServiceResult<ClienteParticipante>.SuccessResult(cliente);
+    }
+
+    public async Task<ServiceResult<ClienteParticipante>> GetByGuidAsync(Guid? id)
+    {
+        if (id == null)
+        {
+            return ServiceResult<ClienteParticipante>.FailureResult("Id no puede ser nulo");
+        }
+
+        var cliente = await _repository.GetByGuidAsync(id,"IdCliente", c => c.Tarjetas, c => c.Descuentos);
+        if (cliente == null)
+        {
+            return ServiceResult<ClienteParticipante>.FailureResult("Cliente no encontrado");
+        }
+
+        return ServiceResult<ClienteParticipante>.SuccessResult(cliente);
+    }
+
+    #endregion
 }

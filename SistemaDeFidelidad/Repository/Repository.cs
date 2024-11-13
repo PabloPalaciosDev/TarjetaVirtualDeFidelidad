@@ -1,6 +1,7 @@
 ﻿using SistemaDeFidelidad.Interfaces;
 using SistemaDeFidelidad.DbContext;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace SistemaDeFidelidad.Repository
 {
@@ -26,12 +27,71 @@ namespace SistemaDeFidelidad.Repository
             }
         }
 
-        public async Task<T> GetByIdAsync(string id)
+        #region Get personalizados
+        public async Task<T> GetByIdAsync(int? id, params Expression<Func<T, object>>[] includes)
         {
+            if (id == null)
+                throw new ArgumentNullException(nameof(id), "El identificador no puede ser nulo.");
+
             try
             {
-                var result = await _context.Set<T>().FindAsync(id);
+                IQueryable<T> query = _context.Set<T>();
+
+                // Incluir las propiedades relacionadas
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+
+                // Buscar la entidad con el identificador proporcionado
+                var result = await query.FirstOrDefaultAsync(entity => EF.Property<int>(entity, "Id") == id);
+
                 return result!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener la entidad: {ex.Message}");
+            }
+        }
+
+        public async Task<T> GetByGuidAsync(Guid? id, string entidad, params Expression<Func<T, object>>[] includes)
+        {
+            if (id == null)
+                throw new ArgumentNullException(nameof(id), "El identificador no puede ser nulo.");
+
+            try
+            {
+                IQueryable<T> query = _context.Set<T>();
+
+                // Incluir las propiedades relacionadas
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+
+                // Buscar la entidad con el identificador proporcionado
+                var result = await query.FirstOrDefaultAsync(entity => EF.Property<Guid>(entity, entidad) == id.Value);
+
+                return result!;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error al obtener la entidad: {ex.Message}");
+            }
+        }
+
+
+        public async Task<T?> GetByAnyAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        {
+            //Obtener propiedades relacioandas de entidad
+            try
+            {
+                IQueryable<T> query = _context.Set<T>();
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+                return await query.FirstOrDefaultAsync(predicate);
             }
             catch (Exception ex)
             {
@@ -39,18 +99,24 @@ namespace SistemaDeFidelidad.Repository
             }
         }
 
-        public async Task<T> GetByGuidAsync(Guid? id)
+        public async Task<IEnumerable<T>> GetAllWithIncludesAsync(params Expression<Func<T, object>>[] includes)
         {
+            //Obtener propiedades relacioandas de entidad
             try
             {
-                var result = await _context.Set<T>().FindAsync(id);
-                return result!;
+                IQueryable<T> query = _context.Set<T>();
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+                return await query.ToListAsync();
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
         }
+        #endregion
 
         public async Task AddAsync(T entity)
         {
@@ -77,7 +143,7 @@ namespace SistemaDeFidelidad.Repository
             }
         }
 
-        public async Task DeleteAsync(string id)
+        public async Task DeleteAsync(int id)
         {
             try
             {
@@ -121,5 +187,7 @@ namespace SistemaDeFidelidad.Repository
                 throw new Exception(ex.Message);
             }
         }
+
     }
+
 }

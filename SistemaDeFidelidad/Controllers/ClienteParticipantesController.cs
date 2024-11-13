@@ -6,34 +6,18 @@
     using SistemaDeFidelidad.Models.DTOs;
     using SistemaDeFidelidad.Repository;
 
-    /// <summary>
-    /// Defines the <see cref="ClienteParticipantesController" />
-    /// </summary>
     [ApiVersion("1.0")]
     [Route("api/v1/[controller]")]
     [ApiController]
     public class ClienteParticipantesController : Controller
     {
-        /// <summary>
-        /// Defines the _serviceClienteParticipante
-        /// </summary>
         private readonly ServiceClienteParticipante _serviceClienteParticipante;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ClienteParticipantesController"/> class.
-        /// </summary>
-        /// <param name="serviceClienteParticipante">The serviceClienteParticipante<see cref="ServiceClienteParticipante"/></param>
         public ClienteParticipantesController(ServiceClienteParticipante serviceClienteParticipante)
         {
             _serviceClienteParticipante = serviceClienteParticipante;
         }
 
-        // GET: ClienteParticipantes
-
-        /// <summary>
-        /// The GetAll
-        /// </summary>
-        /// <returns>The <see cref="Task{IActionResult}"/></returns>
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
         {
@@ -48,13 +32,6 @@
             }
         }
 
-        // GET: ClienteParticipantes/Details/5
-
-        /// <summary>
-        /// The GetByGuid
-        /// </summary>
-        /// <param name="id">The id<see cref="Guid?"/></param>
-        /// <returns>The <see cref="Task{IActionResult}"/></returns>
         [HttpGet("GetByGuid")]
         public async Task<IActionResult> GetByGuid(Guid? id)
         {
@@ -79,15 +56,6 @@
             }
         }
 
-        // POST: ClienteParticipantes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-
-        /// <summary>
-        /// The Create
-        /// </summary>
-        /// <param name="clienteParticipante">The clienteParticipante<see cref="DTOClienteParticipante"/></param>
-        /// <returns>The <see cref="Task{IActionResult}"/></returns>
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] DTOClienteParticipante clienteParticipante)
         {
@@ -111,16 +79,6 @@
             }
         }
 
-        // POST: ClienteParticipantes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-
-        /// <summary>
-        /// The Edit
-        /// </summary>
-        /// <param name="id">The id<see cref="Guid"/></param>
-        /// <param name="clienteParticipante">The clienteParticipante<see cref="DTOClienteParticipante"/></param>
-        /// <returns>The <see cref="Task{IActionResult}"/></returns>
         [HttpPost("Update")]
         public async Task<IActionResult> Edit(Guid id, [FromBody] DTOClienteParticipante clienteParticipante)
         {
@@ -161,11 +119,6 @@
             return Ok(clienteParticipante);
         }
 
-        /// <summary>
-        /// The Delete
-        /// </summary>
-        /// <param name="id">The id<see cref="Guid"/></param>
-        /// <returns>The <see cref="Task{IActionResult}"/></returns>
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
