@@ -4,7 +4,7 @@
     using Microsoft.AspNetCore.Mvc;
     using SistemaDeFidelidad.Models;
     using SistemaDeFidelidad.Models.DTOs;
-    using SistemaDeFidelidad.Repository;
+
 
     [ApiVersion("1.0")]
     [Route("api/v1/[controller]")]

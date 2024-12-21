@@ -128,6 +128,20 @@ namespace SistemaDeFidelidad.Services
                     await _descuentosCliente.SaveAsync();
                 }
 
+                //Puntos iguales a 10 se crea una nueva tarjeta
+                if (tarjeta.Puntos == 10)
+                {
+                    var newTarjeta = new TarjetaFidelidad
+                    {
+                        IdCliente = tarjeta.IdCliente,
+                        Puntos = 0,
+                        Activa = true,
+                    };
+
+                    await _repository.AddAsync(newTarjeta);
+                    await _repository.SaveAsync();
+                }
+
 
                 tarjeta.Puntos = entity.Puntos;
                 tarjeta.Activa = entity.Activa;
@@ -143,5 +157,7 @@ namespace SistemaDeFidelidad.Services
                 return ServiceResult.FailureResult(e.Message);
             }
         }
+
+
     }
 }

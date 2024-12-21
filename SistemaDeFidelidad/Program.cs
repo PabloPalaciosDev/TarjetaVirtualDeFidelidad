@@ -4,6 +4,7 @@ using SistemaDeFidelidad.Interfaces;
 using SistemaDeFidelidad.Models;
 using SistemaDeFidelidad.Repository;
 using SistemaDeFidelidad.Services;
+using SistemaDeFidelidad.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,11 +22,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAuthorization();
 
 //inyección de dependencias
-//builder.Services.AddScoped<ClienteParticipantesController>();
+//Servicios
 builder.Services.AddScoped<ServiceClienteParticipante>();
 builder.Services.AddScoped<ServiceTarjetaFidelidad>();
+//Repositorios
 builder.Services.AddScoped<IRepository<ClienteParticipante>, Repository<ClienteParticipante>>();
 builder.Services.AddScoped<IRepository<TarjetaFidelidad>, Repository<TarjetaFidelidad>>();
+builder.Services.AddScoped<IRepository<DescuentosCliente>, Repository<DescuentosCliente>>();
 
 //swagger
 
