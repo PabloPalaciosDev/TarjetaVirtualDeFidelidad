@@ -1,6 +1,7 @@
 ﻿namespace SistemaDeFidelidad.Controllers
 {
     using Asp.Versioning;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using SistemaDeFidelidad.Models;
     using SistemaDeFidelidad.Models.DTOs;
@@ -18,6 +19,7 @@
             _serviceTarjetaFidelidad = serviceTarjetaFidelidad;
         }
 
+        [Authorize]
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromBody] TarjetaFidelidad tarjetaFidelidad)
         {
@@ -36,6 +38,7 @@
             }
         }
 
+        [Authorize]
         [HttpDelete("Delete")]
         public async Task<IActionResult> Delete(Guid? id)
         {
@@ -55,6 +58,7 @@
         }
 
 
+        
         [HttpGet("GetByGuid")]
         public async Task<IActionResult> GetByGuid(Guid? id)
         {
@@ -78,6 +82,7 @@
             }
         }
 
+        [Authorize]
         [HttpPut("AddPoints")]
         public async Task<IActionResult> Update([FromBody] DTOAgregarPuntosTarjeta tarjetaFidelidad)
         {

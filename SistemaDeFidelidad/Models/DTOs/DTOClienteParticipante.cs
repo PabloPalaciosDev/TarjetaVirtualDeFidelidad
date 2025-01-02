@@ -7,5 +7,6 @@
         public string ApellidoCliente { get; set; } = string.Empty;
         public string EmailCliente { get; set; } = string.Empty;
         public string TelefonoCliente { get; set; } = string.Empty;
+        public string Contrasena { get; set; } = string.Empty;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -11,30 +12,41 @@ namespace SistemaDeFidelidad.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AlterDatabase()
+                .Annotation("MySql:CharSet", "utf8mb4");
+
             migrationBuilder.CreateTable(
                 name: "ClientesParticipantes",
                 columns: table => new
                 {
-                    IdCliente = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CedulaCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    NombreCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ApellidoCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    EmailCliente = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    TelefonoCliente = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    IdCliente = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    CedulaCliente = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    NombreCliente = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    ApellidoCliente = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    EmailCliente = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    TelefonoCliente = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
+                    Contrasena = table.Column<string>(type: "longtext", nullable: false)
+                        .Annotation("MySql:CharSet", "utf8mb4")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ClientesParticipantes", x => x.IdCliente);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "TarjetasFidelidad",
                 columns: table => new
                 {
-                    IdTarjeta = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdCliente = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    IdTarjeta = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    IdCliente = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     Puntos = table.Column<int>(type: "int", nullable: false),
-                    Activa = table.Column<bool>(type: "bit", nullable: false)
+                    Activa = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,18 +57,19 @@ namespace SistemaDeFidelidad.Migrations
                         principalTable: "ClientesParticipantes",
                         principalColumn: "IdCliente",
                         onDelete: ReferentialAction.Cascade);
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateTable(
                 name: "DescuentosClientes",
                 columns: table => new
                 {
                     IdDescuento = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    IdCliente = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IdTarjeta = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    IdCliente = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    IdTarjeta = table.Column<Guid>(type: "char(36)", nullable: true, collation: "ascii_general_ci"),
                     CantidadDescuento = table.Column<int>(type: "int", nullable: false),
-                    Usado = table.Column<bool>(type: "bit", nullable: false)
+                    Usado = table.Column<bool>(type: "tinyint(1)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,7 +85,8 @@ namespace SistemaDeFidelidad.Migrations
                         column: x => x.IdTarjeta,
                         principalTable: "TarjetasFidelidad",
                         principalColumn: "IdTarjeta");
-                });
+                })
+                .Annotation("MySql:CharSet", "utf8mb4");
 
             migrationBuilder.CreateIndex(
                 name: "IX_DescuentosClientes_IdCliente",

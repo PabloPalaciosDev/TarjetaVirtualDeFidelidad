@@ -23,6 +23,8 @@ namespace SistemaDeFidelidad.Models
         public ICollection<TarjetaFidelidad> Tarjetas { get; set; } = null!;
 
         public ICollection<DescuentosCliente> Descuentos { get; set; } = null!;
+        //contraseña
+        public string Contrasena { get; set; } = string.Empty;
 
     }
 }

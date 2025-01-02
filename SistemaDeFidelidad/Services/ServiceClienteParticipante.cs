@@ -1,5 +1,7 @@
 ﻿using SistemaDeFidelidad.Interfaces;
 using SistemaDeFidelidad.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 public class ServiceClienteParticipante : IServices<ClienteParticipante>
 {
@@ -22,19 +24,39 @@ public class ServiceClienteParticipante : IServices<ClienteParticipante>
             {
                 return ServiceResult.FailureResult("Ya existe un cliente con la misma cédula");
             }
+            //validacion de correo existente 
+            if (clientesExistentes.Any(c => c.EmailCliente == entity.EmailCliente))
+            {
+                return ServiceResult.FailureResult("Ya existe un cliente con el mismo correo");
+            }
+
+            //validacion contrasena existente 
+            if (clientesExistentes.Any(c => c.Contrasena == entity.Contrasena))
+            {
+                return ServiceResult.FailureResult("Contraseña invalida");
+            }
+
+            //validacion mismo telefono
+            if (clientesExistentes.Any(c => c.TelefonoCliente == entity.TelefonoCliente))
+            {
+                return ServiceResult.FailureResult("Ya existe un cliente con el mismo telefono");
+            }
+
+            // Hashear la contraseña
+            entity.Contrasena = HashPassword(entity.Contrasena);
 
             await _repository.AddAsync(entity);
             await _repository.SaveAsync();
 
-
-            //Obtener cliente creado
+            // Obtener cliente creado
             var cliente = await _repository.GetByAnyAsync(c => c.CedulaCliente == entity.CedulaCliente);
 
-            if (cliente == null) {
+            if (cliente == null)
+            {
                 return ServiceResult.FailureResult("Error al crear cliente");
             }
 
-            //Crear tarjeta de fidelidad
+            // Crear tarjeta de fidelidad
             var tarjetaFidelidad = new TarjetaFidelidad
             {
                 IdTarjeta = Guid.NewGuid(),
@@ -45,7 +67,6 @@ public class ServiceClienteParticipante : IServices<ClienteParticipante>
 
             await _repositoryTarjetaFidelidad.AddAsync(tarjetaFidelidad);
             await _repositoryTarjetaFidelidad.SaveAsync();
-
 
             return ServiceResult.SuccessResult("Cliente creado con éxito");
         }
@@ -104,7 +125,20 @@ public class ServiceClienteParticipante : IServices<ClienteParticipante>
         {
             //Obtener tarjetas y descuentos registrados del cliente
             var clientes = await _repository.GetAllWithIncludesAsync(c => c.Tarjetas, c => c.Descuentos);
-            return ServiceResult<IEnumerable<ClienteParticipante>>.SuccessResult(clientes);
+            //mapear respuesta a un nuevo arreglo clientesMapped
+
+            var clientesMapped = clientes.Select(c => new ClienteParticipante
+            {
+                IdCliente = c.IdCliente,
+                CedulaCliente = c.CedulaCliente,
+                NombreCliente = c.NombreCliente,
+                ApellidoCliente = c.ApellidoCliente,
+                EmailCliente = c.EmailCliente,
+                TelefonoCliente = c.TelefonoCliente,
+                Tarjetas = c.Tarjetas,
+                Descuentos = c.Descuentos
+            });
+            return ServiceResult<IEnumerable<ClienteParticipante>>.SuccessResult(clientesMapped);
         }
         catch (Exception ex)
         {
@@ -144,5 +178,53 @@ public class ServiceClienteParticipante : IServices<ClienteParticipante>
         return ServiceResult<ClienteParticipante>.SuccessResult(cliente);
     }
 
+    public async Task<ServiceResult<ClienteParticipante>> GetByEmailAsync(string email)
+    {
+        if (string.IsNullOrEmpty(email))
+        {
+            return ServiceResult<ClienteParticipante>.FailureResult("El correo no puede ser nulo o vacío");
+        }
+
+        try
+        {
+            // Buscar al cliente por su correo electrónico
+            var cliente = await _repository.GetByAnyAsync(c => c.EmailCliente == email);
+
+            if (cliente == null)
+            {
+                return ServiceResult<ClienteParticipante>.FailureResult("Cliente no encontrado");
+            }
+
+            return ServiceResult<ClienteParticipante>.SuccessResult(cliente);
+        }
+        catch (Exception ex)
+        {
+            return ServiceResult<ClienteParticipante>.FailureResult(ex.Message);
+        }
+    }
+
     #endregion
+
+
+    private string HashPassword(string password)
+    {
+        using (var sha256 = SHA256.Create())
+        {
+            // Convierte la contraseña a un arreglo de bytes
+            byte[] bytes = Encoding.UTF8.GetBytes(password);
+
+            // Calcula el hash
+            byte[] hash = sha256.ComputeHash(bytes);
+
+            // Convierte el hash a un string hexadecimal
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in hash)
+            {
+                sb.Append(b.ToString("x2"));
+            }
+
+            return sb.ToString();
+        }
+    }
 }
+

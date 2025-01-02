@@ -11,9 +11,9 @@
 		<PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
 		<PackageReference Include="Azure.Identity" Version="1.13.1" />
 
-		<!-- Entity Framework Core y SQL Server -->
+		<!-- Entity Framework Core y MariaDB -->
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,6 +24,9 @@
 
 		<!-- Swagger para documentación de API -->
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+
+		<!-- Autenticación JWT -->
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
 	</ItemGroup>
 
 </Project>

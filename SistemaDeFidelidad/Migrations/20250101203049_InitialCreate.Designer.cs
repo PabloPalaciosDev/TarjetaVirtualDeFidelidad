@@ -12,7 +12,7 @@ using SistemaDeFidelidad.DbContext;
 namespace SistemaDeFidelidad.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241111031556_InitialCreate")]
+    [Migration("20250101203049_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -21,35 +21,39 @@ namespace SistemaDeFidelidad.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.10")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("SistemaDeFidelidad.Models.ClienteParticipante", b =>
                 {
                     b.Property<Guid>("IdCliente")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("char(36)");
 
                     b.Property<string>("ApellidoCliente")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("CedulaCliente")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Contrasena")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("EmailCliente")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("NombreCliente")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.Property<string>("TelefonoCliente")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("IdCliente");
 
@@ -62,19 +66,19 @@ namespace SistemaDeFidelidad.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdDescuento"));
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdDescuento"));
 
                     b.Property<int>("CantidadDescuento")
                         .HasColumnType("int");
 
                     b.Property<Guid>("IdCliente")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("char(36)");
 
                     b.Property<Guid?>("IdTarjeta")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("char(36)");
 
                     b.Property<bool>("Usado")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("IdDescuento");
 
@@ -89,13 +93,13 @@ namespace SistemaDeFidelidad.Migrations
                 {
                     b.Property<Guid>("IdTarjeta")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("char(36)");
 
                     b.Property<bool>("Activa")
-                        .HasColumnType("bit");
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<Guid>("IdCliente")
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("char(36)");
 
                     b.Property<int>("Puntos")
                         .HasColumnType("int");

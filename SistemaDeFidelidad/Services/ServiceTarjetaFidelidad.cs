@@ -76,7 +76,7 @@ namespace SistemaDeFidelidad.Services
         {
             try
             {
-                var tarjeta = await _repository.GetByGuidAsync(id, "IdTarjeta", t => t.Cliente, t => t.Descuentos);
+                var tarjeta = await _repository.GetByGuidAsync(id, "IdCliente", t => t.Cliente, t => t.Descuentos);
                 if (tarjeta == null)
                 {
                     return ServiceResult<TarjetaFidelidad>.FailureResult("Tarjeta no encontrada");
