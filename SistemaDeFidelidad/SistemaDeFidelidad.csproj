@@ -7,6 +7,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Dockerfile" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Compile Include="Dockerfile" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<!-- Versionado de API -->
 		<PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
 		<PackageReference Include="Azure.Identity" Version="1.13.1" />
@@ -28,5 +36,7 @@
 		<!-- Autenticación JWT -->
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
 	</ItemGroup>
+
+	<!--aaa-->
 
 </Project>
